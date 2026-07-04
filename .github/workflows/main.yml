@@ -27,7 +27,8 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y libsqlite3-dev fontconfig libffi-dev libssl-dev openjdk-17-jdk unzip zip ccache autoconf libtool pkg-config zlib1g-dev
         pip install --upgrade pip
-        pip install "buildozer>=1.5.0" cython
+        # Buildozer ရော python-for-android ကိုပါ တည်ငြိမ်တဲ့ ဗားရှင်းတွေအဖြစ် အသေပိတ်ချုပ်လိုက်ခြင်း
+        pip install "buildozer>=1.5.0" "python-for-android>=2024.1.21" cython
 
     - name: Set Environment Variables
       run: |
