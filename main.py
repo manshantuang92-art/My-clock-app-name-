@@ -15,7 +15,7 @@ class PerfectAnimatedClock(BoxLayout):
         self.show_clock = False
         self.bind(pos=self.draw_clock, size=self.draw_clock)
         
-        # App စပွင့်ချင်း ၁.၅ စက္ကန့်အထိ အမည်းရောင်မျက်နှာပြင်ပဲ ပြထားပြီး၊ ပြီးမှ နာရီဝိုင်းကို ဖော်ပြရန်
+        # အစပိုင်း ၁.၅ စက္ကန့်တွင် အမည်းရောင်ပြထားပြီးမှ နာရီပေါ်ရန်
         Clock.schedule_once(self.activate_clock, 1.5)
         Clock.schedule_interval(self.update_angle, 0.05)
 
@@ -30,27 +30,24 @@ class PerfectAnimatedClock(BoxLayout):
 
     def draw_clock(self, *args):
         self.canvas.clear()
-        
-        # Layout ရဲ့ ဗဟိုချက်ကို တွက်ချက်ခြင်း
         cx = self.center_x
         cy = self.center_y - 50
         radius = 220
         
         with self.canvas:
-            # နောက်ခံကို အမည်းရောင်အပြည့် အမြဲဖုံးအုပ်ထားခြင်း (Kivy Logo ပေါ်လာပါက ဖျောက်ရန်)
+            # နောက်ခံ အမည်းရောင် ဖုံးအုပ်ခြင်း
             Color(0.1, 0.1, 0.1, 1)
             Rectangle(pos=self.pos, size=self.size)
             
-            # ၁.၅ စက္ကန့်ပြည့်မှ နာရီဝိုင်းနှင့် နံပါတ်များကို ဆွဲခြင်း
             if self.show_clock:
-                # အပြင်ဘက် နာရီအဝိုင်းကြီး
+                # နာရီအဝိုင်း
                 Color(1, 1, 1, 1)
                 Line(circle=(cx, cy, radius), width=4)
                 
-                # ဗဟိုချက် အစက်
+                # ဗဟိုစက်
                 Line(circle=(cx, cy, 5), width=5)
                 
-                # နာရီနံပါတ် (၁ မှ ၁၂) ဆွဲခြင်း
+                # နံပါတ် ၁ မှ ၁၂ ကို Canvas ပေါ်ဆွဲခြင်း
                 for i in range(1, 13):
                     angle_rad = math.radians(i * 30)
                     nx = cx + (radius - 40) * math.sin(angle_rad)
@@ -59,12 +56,12 @@ class PerfectAnimatedClock(BoxLayout):
                     core_label = CoreLabel(text=str(i), font_size=24, bold=True)
                     core_label.refresh()
                     texture = core_label.texture
-                    texture_size = texture.size
+                    t_size = texture.size
                     
                     Color(1, 1, 1, 1)
-                    Rectangle(texture=texture, pos=(nx - texture_size[0]/2, ny - texture_size[1]/2), size=texture_size)
+                    Rectangle(texture=texture, pos=(nx - t_size[0]/2, ny - t_size[1]/2), size=t_size)
                 
-                # တရွေ့ရွေ့ လှည့်ပတ်နေမယ့် စက္ကန့်တံ (အဝါရောင်)
+                # စက္ကန့်တံ (အဝါရောင်)
                 Color(1, 0.8, 0.2, 1)
                 rad_hand = math.radians(self.angle)
                 hand_x = cx + (radius - 20) * math.sin(rad_hand)
@@ -74,10 +71,8 @@ class PerfectAnimatedClock(BoxLayout):
 class ClockApp(App):
     def build(self):
         Window.clearcolor = (0.1, 0.1, 0.1, 1)
-        
         self.main_layout = BoxLayout(orientation='vertical', padding=50, spacing=20)
 
-        # Loading စာသား (နာရီဝိုင်းပေါ်လာမှ အတူတူပြရန် ကနဦးတွင် စာသားမထည့်ထားပါ)
         self.loading_label = Label(
             text="", 
             font_size='30sp', 
@@ -87,14 +82,10 @@ class ClockApp(App):
         )
         
         self.animated_clock = PerfectAnimatedClock(size_hint_y=0.85)
-        
         self.main_layout.add_widget(self.loading_label)
         self.main_layout.add_widget(self.animated_clock)
 
-        # ၁.၅ စက္ကန့်ပြည့်ရင် LOADING... စာသား ဖော်ပြရန်
         Clock.schedule_once(self.show_loading_text, 1.5)
-        
-        # ၄.၅ စက္ကန့်ပြည့်လျှင် တကယ့် ဒီဂျစ်တယ်နာရီဆီ ကူးပြောင်းရန်
         Clock.schedule_once(self.switch_to_digital_clock, 4.5)
 
         return self.main_layout
@@ -104,14 +95,11 @@ class ClockApp(App):
 
     def switch_to_digital_clock(self, *args):
         self.main_layout.clear_widgets()
-
-        # === တကယ့် ဒီဂျစ်တယ်နာရီ မျက်နှာပြင် ===
         self.title_label = Label(text="MY DIGITAL CLOCK", font_size='26sp', bold=True, color=(0.2, 0.6, 1, 1))
         self.time_label = Label(text="00:00:00 AM", font_size='54sp', bold=True, color=(1, 0.8, 0.2, 1))
 
         self.main_layout.add_widget(self.title_label)
         self.main_layout.add_widget(self.time_label)
-
         Clock.schedule_interval(self.update_time, 1)
 
     def update_time(self, *args):
