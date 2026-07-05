@@ -1,46 +1,46 @@
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.clock import Clock
+from kivy.core.window import Window
 import time
-import os
 
-# အရောင် Code များ သတ်မှတ်ခြင်း
-BLUE = "\033[94m"
-YELLOW = "\033[93m"
-RESET = "\033[0m"
+class ClockApp(App):
+    def build(self):
+        # နောက်ခံအရောင်ကို မီးခိုးရင့်ရောင် သတ်မှတ်ခြင်း
+        Window.clearcolor = (0.1, 0.1, 0.1, 1)
 
-def display_clock():
-    # Screen ကို အမြဲရှင်းလင်းနေစေရန်
-    os.system('cls' if os.name == 'nt' else 'clear')
-    
-    print(f"{YELLOW}================================={RESET}")
-    print(f"{BLUE}        MY DIGITAL CLOCK         {RESET}")
-    print(f"{YELLOW}================================={RESET}")
-    print("\n")
+        # အပြင်အဆင် Layout ဆောက်ခြင်း
+        layout = BoxLayout(orientation='vertical', padding=50, spacing=20)
 
-    while True:
-        try:
-            # လက်ရှိအချိန်ကို ရယူခြင်း
-            current_time = time.localtime()
-            hour = current_time.tm_hour
-            minute = current_time.tm_min
-            second = current_time.tm_sec
+        # ခေါင်းစဉ်စာသား
+        self.title_label = Label(
+            text="MY DIGITAL CLOCK",
+            font_size='24sp',
+            bold=True,
+            color=(0.2, 0.6, 1, 1)  # အပြာနုရောင်
+        )
 
-            # AM / PM ခွဲခြားခြင်း
-            am_pm = "AM" if hour < 12 else "PM"
-            
-            # 12-hour format သို့ ပြောင်းလဲခြင်း
-            display_hour = hour % 12
-            if display_hour == 0:
-                display_hour = 12
+        # အချိန်ပြမည့် စာသား
+        self.time_label = Label(
+            text="00:00:00 AM",
+            font_size='48sp',
+            bold=True,
+            color=(1, 0.8, 0.2, 1)  # အဝါရောင်
+        )
 
-            # အချိန်ကို တစ်ကြောင်းတည်းမှာပဲ အမြဲတမ်း Update ဖြစ်နေစေရန် \r သုံးထားပါတယ်
-            print(f"\r{YELLOW}လက်ရှိအချိန် - {RESET}{BLUE}{display_hour:02d}:{minute:02d}:{second:02d} {am_pm}{RESET}  (ထွက်ချင်လျှင် Ctrl+C နှိပ်ပါ)", end="", flush=True)
-            
-            # ၀.၁ စက္ကန့်တိုင်း အချိန်ကို စစ်ဆေးပေးခြင်း
-            time.sleep(0.1)
-            
-        except KeyboardInterrupt:
-            # အသုံးပြုသူက ထွက်ချင်တဲ့အခါ
-            print(f"\n\n{YELLOW}နာရီပရိုဂရမ်ကို ပိတ်လိုက်ပါပြီ။ သာယာသောနေ့လေးဖြစ်ပါစေဗျာ!{RESET}\n")
-            break
+        layout.add_widget(self.title_label)
+        layout.add_widget(self.time_label)
+
+        # တစ်စက္ကန့်တိုင်း အချိန်ကို Update လုပ်ပေးရန် ညွှန်ကြားခြင်း
+        Clock.schedule_interval(self.update_time, 1)
+
+        return layout
+
+    def update_time(self, *args):
+        # လက်ရှိအချိန်ကို ရယူပြီး ပုံစံဖော်ခြင်း (ဥပမာ - 11:26:19 PM)
+        current_time = time.strftime("%I:%M:%S %p")
+        self.time_label.text = current_time
 
 if __name__ == "__main__":
-    display_clock()
+    ClockApp().run()
