@@ -1,19 +1,18 @@
 from kivy.app import App
-from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.graphics import Color, Line
-from kivy.uix.widget import Widget
+from kivy.graphics.instructions import InstructionGroup
+from kivy.core.text import Label as CoreLabel
 import time
 import math
 
-class AnimatedClockWidget(Widget):
+class PerfectAnimatedClock(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.angle = 0
-        # Layout ဆွဲပြီးမှ ဗဟိုချက်ကို တွက်ချက်ရန် တန်ဖိုးပတ်သက်မှုများကို Bind လုပ်ခြင်း
         self.bind(pos=self.draw_clock, size=self.draw_clock)
         Clock.schedule_interval(self.update_angle, 0.05)
 
@@ -24,21 +23,39 @@ class AnimatedClockWidget(Widget):
     def draw_clock(self, *args):
         self.canvas.clear()
         
-        # နာရီဝိုင်းအရွယ်အစား (Radius)
-        radius = 200
-        # Widget ရဲ့ ဗဟိုချက်ကို တိတိကျကျ ရယူခြင်း
-        cx = self.x + self.width / 2
-        cy = self.y + self.height / 2
+        # နာရီဝိုင်းရဲ့ အရွယ်အစား
+        radius = 220
+        # Layout ရဲ့ အလယ်ဗဟိုကို တိတိကျကျ ရယူခြင်း
+        cx = self.center_x
+        cy = self.center_y - 50 # Loading စာသားနဲ့ မညှိအောင် အနည်းငယ် အောက်ချထားခြင်း
         
         with self.canvas:
-            # ၁။ အပြင်ဘက် နာရီအဝိုင်းကြီး (အဖြူရောင်)
+            # ၁။ အပြင်ဘက် နာရီအဝိုင်းကြီး
             Color(1, 1, 1, 1)
             Line(circle=(cx, cy, radius), width=4)
             
-            # ၂။ နာရီဗဟိုချက် အစက်
+            # ၂။ ဗဟိုချက် အစက်
             Line(circle=(cx, cy, 5), width=5)
             
-            # ၃။ တရွေ့ရွေ့လှည့်နေမယ့် စက္ကန့်တံ (အဝါရောင်လက်တံ)
+            # ၃။ နာရီနံပါတ် (၁ မှ ၁၂) ကို Canvas ပေါ်တွင် တိုက်ရိုက်ဆွဲခြင်း (ဘယ်တော့မှ မလွဲစေရန်)
+            for i in range(1, 13):
+                angle_rad = math.radians(i * 30)
+                # နံပါတ်တွေ တည်ရှိမည့်နေရာ တွက်ချက်ခြင်း
+                nx = cx + (radius - 40) * math.sin(angle_rad)
+                ny = cy + (radius - 40) * math.cos(angle_rad)
+                
+                # Core Text Render စနစ်ဖြင့် စာသားကို ပုံရိပ်အဖြစ် ပြောင်းလဲခြင်း
+                core_label = CoreLabel(text=str(i), font_size=24, bold=True)
+                core_label.refresh()
+                texture = core_label.texture
+                texture_size = texture.size
+                
+                # စာသားပုံရိပ်ကို အလယ်ဗဟိုတည့်တည့် ရောက်အောင် နေရာချခြင်း
+                Color(1, 1, 1, 1)
+                from kivy.graphics import Rectangle
+                Rectangle(texture=texture, pos=(nx - texture_size[0]/2, ny - texture_size[1]/2), size=texture_size)
+            
+            # ၄။ တရွေ့ရွေ့ လှည့်ပတ်နေမယ့် စက္ကန့်တံ (အဝါရောင်)
             Color(1, 0.8, 0.2, 1)
             rad_hand = math.radians(self.angle)
             hand_x = cx + (radius - 20) * math.sin(rad_hand)
@@ -50,56 +67,27 @@ class ClockApp(App):
         Window.clearcolor = (0.1, 0.1, 0.1, 1)
         
         # ပင်မ Layout
-        self.main_layout = BoxLayout(orientation='vertical', padding=30, spacing=20)
+        self.main_layout = BoxLayout(orientation='vertical', padding=50, spacing=20)
 
         # Loading စာသား
         self.loading_label = Label(
             text="LOADING...", 
-            font_size='28sp', 
+            font_size='30sp', 
             bold=True, 
             color=(0.2, 0.6, 1, 1),
-            size_hint_y=0.2
+            size_hint_y=0.15
         )
         
-        # နာရီဝိုင်းနဲ့ နံပါတ်တွေကို Screen အလယ်မှာ ကွက်တိနေရာချဖို့ RelativeLayout သုံးခြင်း
-        self.clock_container = RelativeLayout(size_hint_y=0.8)
-        self.animated_clock = AnimatedClockWidget()
+        # အသက်ဝင် နာရီဝိုင်းသစ်ကို Layout ထဲ ထည့်သွင်းခြင်း
+        self.animated_clock = PerfectAnimatedClock(size_hint_y=0.85)
         
-        self.clock_container.add_widget(self.animated_clock)
-        
-        # နံပါတ် (၁ မှ ၁၂) ကို အလယ်တည့်တည့်မှာ ဝိုင်းပတ်ပေါ်လာစေရန် ခေါ်ယူခြင်း
-        Clock.schedule_once(self.add_clock_numbers, 0.1)
-
         self.main_layout.add_widget(self.loading_label)
-        self.main_layout.add_widget(self.clock_container)
+        self.main_layout.add_widget(self.animated_clock)
 
-        # ၄ စက္ကန့်ပြည့်လျှင် တကယ့် ဒီဂျစ်တယ်နာရီဆီ ပြောင်းရန်
+        # ၄ စက္ကန့်ပြည့်လျှင် ဒုတိယမျက်နှာပြင်ဆီ ကူးပြောင်းရန်
         Clock.schedule_once(self.switch_to_digital_clock, 4)
 
         return self.main_layout
-
-    def add_clock_numbers(self, *args):
-        # Container ရဲ့ ဗဟိုချက်ကို တွက်ချက်ခြင်း
-        cx = self.clock_container.width / 2
-        cy = self.clock_container.height / 2
-        radius = 200
-        
-        for i in range(1, 13):
-            angle_rad = math.radians(i * 30)
-            # စာသား Label ရဲ့ ဗဟိုချက်ကို ညှိရန် -25 နဲ့ -25 နှုတ်ပေးထားပါတယ်
-            nx = cx + (radius - 40) * math.sin(angle_rad) - 25
-            ny = cy + (radius - 40) * math.cos(angle_rad) - 25
-            
-            num_label = Label(
-                text=str(i),
-                font_size='24sp',
-                bold=True,
-                color=(1, 1, 1, 1),
-                pos=(nx, ny),
-                size_hint=(None, None),
-                size=(50, 50)
-            )
-            self.clock_container.add_widget(num_label)
 
     def switch_to_digital_clock(self, *args):
         self.main_layout.clear_widgets()
