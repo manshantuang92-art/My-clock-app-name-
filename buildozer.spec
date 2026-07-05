@@ -12,8 +12,8 @@ android.archs = arm64-v8a
 android.accept_sdk_license = True
 android.api = 33
 android.minapi = 21
-android.skip_presplash = 1
-android.presplash_color = #1A1A1A (နောက်ခံအမည်းရောင်ထားရန်)
+presplash.filename = %(source.dir)s/blank.png
+android.presplash_color = #1A1A1A
 [buildozer]
 log_level = 2
 warn_on_root = 0
