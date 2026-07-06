@@ -13,10 +13,6 @@ android.accept_sdk_license = True
 android.api = 33
 android.minapi = 21
 
-# ⚠️ အမှားကင်းဝေးစေရန် နာမည်ကို အတိအကျ ပုံသေ သတ်မှတ်လိုက်ခြင်း
-presplash.filename = %(source.dir)s/blank.png
-android.presplash_color = #1A1A1A
-
 [buildozer]
 log_level = 2
 warn_on_root = 0
