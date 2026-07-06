@@ -3,7 +3,7 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.clock import Clock
 from kivy.core.window import Window
-from kivy.graphics import Color, Line, Rectangle
+from kivy.graphics import Color, Rectangle, Line
 from kivy.core.text import Label as CoreLabel
 import time
 import math
@@ -15,8 +15,8 @@ class PerfectAnimatedClock(BoxLayout):
         self.show_clock = False
         self.bind(pos=self.draw_clock, size=self.draw_clock)
         
-        # အစပိုင်း ၁.၅ စက္ကန့်တွင် အမည်းရောင်ပြထားပြီးမှ နာရီပေါ်ရန်
-        Clock.schedule_once(self.activate_clock, 1.5)
+        # ၁ စက္ကန့်ပြည့်မှ နာရီဝိုင်းပေါ်လာစေရန်
+        Clock.schedule_once(self.activate_clock, 1.0)
         Clock.schedule_interval(self.update_angle, 0.05)
 
     def activate_clock(self, *args):
@@ -35,7 +35,7 @@ class PerfectAnimatedClock(BoxLayout):
         radius = 220
         
         with self.canvas:
-            # နောက်ခံ အမည်းရောင် ဖုံးအုပ်ခြင်း
+            # နောက်ခံကို အမည်းရောင်အပြည့် အမြဲဖုံးအုပ်ထားခြင်း (Kivy Logo ကို ဖျောက်ရန်)
             Color(0.1, 0.1, 0.1, 1)
             Rectangle(pos=self.pos, size=self.size)
             
@@ -85,8 +85,8 @@ class ClockApp(App):
         self.main_layout.add_widget(self.loading_label)
         self.main_layout.add_widget(self.animated_clock)
 
-        Clock.schedule_once(self.show_loading_text, 1.5)
-        Clock.schedule_once(self.switch_to_digital_clock, 4.5)
+        Clock.schedule_once(self.show_loading_text, 1.0)
+        Clock.schedule_once(self.switch_to_digital_clock, 4.0)
 
         return self.main_layout
 
